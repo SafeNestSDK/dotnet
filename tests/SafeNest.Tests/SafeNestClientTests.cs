@@ -417,7 +417,7 @@ public class ActionPlanTests
             ExternalId = "ext-1"
         });
 
-        var body = await handler.Requests[0].Content!.ReadAsStringAsync();
+        var body = handler.RequestBodies[0];
         Assert.Contains("\"role\"", body);
         Assert.Contains("educator", body);
         Assert.Contains("\"severity\"", body);
