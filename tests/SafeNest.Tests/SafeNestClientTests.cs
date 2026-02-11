@@ -13,13 +13,18 @@ internal class MockHandler : HttpMessageHandler
 {
     private readonly Func<HttpRequestMessage, HttpResponseMessage> _handler;
     public List<HttpRequestMessage> Requests { get; } = new();
+    public List<string> RequestBodies { get; } = new();
 
     public MockHandler(Func<HttpRequestMessage, HttpResponseMessage> handler) => _handler = handler;
 
-    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
     {
         Requests.Add(request);
-        return Task.FromResult(_handler(request));
+        if (request.Content != null)
+            RequestBodies.Add(await request.Content.ReadAsStringAsync(ct));
+        else
+            RequestBodies.Add("");
+        return _handler(request);
     }
 
     public static MockHandler WithJson(object body, HttpStatusCode status = HttpStatusCode.OK,
@@ -27,10 +32,7 @@ internal class MockHandler : HttpMessageHandler
     {
         return new MockHandler(_ =>
         {
-            var json = JsonSerializer.Serialize(body, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-            });
+            var json = JsonSerializer.Serialize(body);
             var response = new HttpResponseMessage(status)
             {
                 Content = new StringContent(json, Encoding.UTF8, "application/json")
@@ -189,7 +191,7 @@ public class BullyingDetectionTests
         Assert.Equal(HttpMethod.Post, request.Method);
         Assert.Equal("/api/v1/safety/bullying", request.RequestUri?.AbsolutePath);
 
-        var body = await request.Content!.ReadAsStringAsync();
+        var body = handler.RequestBodies[0];
         Assert.Contains("\"text\"", body);
         Assert.Contains("\"external_id\"", body);
         Assert.Contains("\"customer_id\"", body);
