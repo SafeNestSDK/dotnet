@@ -360,6 +360,26 @@ public class SafeNestClient : IDisposable
     }
 
     // =========================================================================
+    // Account Management (GDPR)
+    // =========================================================================
+
+    /// <summary>
+    /// Delete all account data (GDPR Article 17 — Right to Erasure).
+    /// </summary>
+    public async Task<AccountDeletionResult> DeleteAccountDataAsync(CancellationToken ct = default)
+    {
+        return await RequestWithRetryAsync<AccountDeletionResult>(HttpMethod.Delete, "/api/v1/account/data", null, ct);
+    }
+
+    /// <summary>
+    /// Export all account data as JSON (GDPR Article 20 — Right to Data Portability).
+    /// </summary>
+    public async Task<AccountExportResult> ExportAccountDataAsync(CancellationToken ct = default)
+    {
+        return await RequestWithRetryAsync<AccountExportResult>(HttpMethod.Get, "/api/v1/account/export", null, ct);
+    }
+
+    // =========================================================================
     // Private Methods
     // =========================================================================
 

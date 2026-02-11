@@ -456,6 +456,37 @@ public class ReportResult
 }
 
 // =============================================================================
+// Account Management (GDPR)
+// =============================================================================
+
+/// <summary>
+/// Result of account data deletion (GDPR Article 17 — Right to Erasure).
+/// </summary>
+public class AccountDeletionResult
+{
+    [JsonPropertyName("message")]
+    public string Message { get; set; } = "";
+
+    [JsonPropertyName("deleted_count")]
+    public int DeletedCount { get; set; }
+}
+
+/// <summary>
+/// Result of account data export (GDPR Article 20 — Right to Data Portability).
+/// </summary>
+public class AccountExportResult
+{
+    [JsonPropertyName("userId")]
+    public string UserId { get; set; } = "";
+
+    [JsonPropertyName("exportedAt")]
+    public string ExportedAt { get; set; } = "";
+
+    [JsonPropertyName("data")]
+    public Dictionary<string, object>? Data { get; set; }
+}
+
+// =============================================================================
 // Usage & Rate Limit
 // =============================================================================
 

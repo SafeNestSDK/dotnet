@@ -10,7 +10,7 @@
 
     <!-- NuGet Package -->
     <PackageId>SafeNest</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>SafeNest</Authors>
     <Company>SafeNest</Company>
     <Description>Official .NET SDK for the SafeNest API — AI-powered child safety analysis for C#/.NET applications</Description>

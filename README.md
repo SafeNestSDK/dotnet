@@ -440,6 +440,32 @@ app.MapPost("/api/moderate", async (SafeNestClient safenest, ModerateRequest req
 
 ---
 
+## Best Practices
+
+### Message Batching
+
+The **bullying** and **unsafe content** methods analyze a single `text` field per request. If your app receives messages one at a time, concatenate a **sliding window of recent messages** into one string before calling the API. Single words or short fragments lack context for accurate detection and can be exploited to bypass safety filters.
+
+```csharp
+// Bad — each message analyzed in isolation, easily evaded
+foreach (var msg in messages)
+{
+    await client.DetectBullyingAsync(text: msg);
+}
+
+// Good — recent messages analyzed together
+var window = string.Join(" ", recentMessages.TakeLast(10));
+await client.DetectBullyingAsync(text: window);
+```
+
+The **grooming** method already accepts a `messages` list and analyzes the full conversation in context.
+
+### PII Redaction
+
+Enable `PII_REDACTION_ENABLED=true` on your SafeNest API to automatically strip emails, phone numbers, URLs, social handles, IPs, and other PII from detection summaries and webhook payloads. The original text is still analyzed in full — only stored outputs are scrubbed.
+
+---
+
 ## License
 
 MIT — see [LICENSE](./LICENSE) for details.
