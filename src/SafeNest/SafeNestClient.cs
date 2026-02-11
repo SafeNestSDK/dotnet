@@ -32,10 +32,33 @@ public class SafeNestClient : IDisposable
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+        PropertyNamingPolicy = new SnakeCaseNamingPolicy(),
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         PropertyNameCaseInsensitive = true,
     };
+
+    private sealed class SnakeCaseNamingPolicy : JsonNamingPolicy
+    {
+        public override string ConvertName(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return name;
+            var sb = new StringBuilder();
+            for (int i = 0; i < name.Length; i++)
+            {
+                var c = name[i];
+                if (char.IsUpper(c))
+                {
+                    if (i > 0) sb.Append('_');
+                    sb.Append(char.ToLowerInvariant(c));
+                }
+                else
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString();
+        }
+    }
 
     /// <summary>Current monthly usage statistics (updated after each request).</summary>
     public Usage? Usage { get; private set; }
