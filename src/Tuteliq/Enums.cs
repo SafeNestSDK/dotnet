@@ -1,4 +1,4 @@
-namespace SafeNest;
+namespace Tuteliq;
 
 /// <summary>
 /// Severity levels for safety detections.

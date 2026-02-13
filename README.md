@@ -1,33 +1,33 @@
 <p align="center">
-  <img src="https://safenest.dev/logo.png" alt="SafeNest" width="200" />
+  <img src="./assets/logo.png" alt="Tuteliq" width="200" />
 </p>
 
-<h1 align="center">SafeNest .NET SDK</h1>
+<h1 align="center">Tuteliq .NET SDK</h1>
 
 <p align="center">
-  <strong>Official .NET SDK for the SafeNest API</strong><br>
+  <strong>Official .NET SDK for the Tuteliq API</strong><br>
   AI-powered child safety analysis for C#/.NET applications
 </p>
 
 <p align="center">
-  <a href="https://www.nuget.org/packages/SafeNest"><img src="https://img.shields.io/nuget/v/SafeNest.svg" alt="NuGet version"></a>
-  <a href="https://www.nuget.org/packages/SafeNest"><img src="https://img.shields.io/nuget/dt/SafeNest.svg" alt="NuGet downloads"></a>
-  <a href="https://github.com/SafeNestSDK/dotnet/blob/main/LICENSE"><img src="https://img.shields.io/github/license/SafeNestSDK/dotnet" alt="license"></a>
-  <a href="https://github.com/SafeNestSDK/dotnet/actions"><img src="https://img.shields.io/github/actions/workflow/status/SafeNestSDK/dotnet/ci.yml" alt="build status"></a>
+  <a href="https://www.nuget.org/packages/Tuteliq"><img src="https://img.shields.io/nuget/v/Tuteliq.svg" alt="NuGet version"></a>
+  <a href="https://www.nuget.org/packages/Tuteliq"><img src="https://img.shields.io/nuget/dt/Tuteliq.svg" alt="NuGet downloads"></a>
+  <a href="https://github.com/Tuteliq/dotnet/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Tuteliq/dotnet" alt="license"></a>
+  <a href="https://github.com/Tuteliq/dotnet/actions"><img src="https://img.shields.io/github/actions/workflow/status/Tuteliq/dotnet/ci.yml" alt="build status"></a>
 </p>
 
 <p align="center">
-  <a href="https://docs.safenest.dev">Documentation</a> •
-  <a href="https://safenest.dev/dashboard">Dashboard</a> •
+  <a href="https://ai.tuteliq.ai/docs">Documentation</a> •
+  <a href="https://tuteliq.ai/dashboard">Dashboard</a> •
   <a href="https://discord.gg/7kbTeRYRXD">Discord</a> •
-  <a href="https://twitter.com/safenestdev">Twitter</a>
+  <a href="https://twitter.com/tuteliqdev">Twitter</a>
 </p>
 
 ---
 
 ## Overview
 
-SafeNest provides AI-powered content analysis to help protect children in digital environments. This SDK makes it easy to integrate SafeNest's capabilities into your .NET applications — ASP.NET Core APIs, background services, Blazor apps, console tools, and more.
+Tuteliq provides AI-powered content analysis to help protect children in digital environments. This SDK makes it easy to integrate Tuteliq's capabilities into your .NET applications — ASP.NET Core APIs, background services, Blazor apps, console tools, and more.
 
 ### Key Features
 
@@ -38,7 +38,7 @@ SafeNest provides AI-powered content analysis to help protect children in digita
 - **Action Guidance** — Generate age-appropriate response recommendations
 - **Incident Reports** — Create professional summaries for review
 
-### Why SafeNest?
+### Why Tuteliq?
 
 | Feature | Description |
 |---------|-------------|
@@ -53,28 +53,28 @@ SafeNest provides AI-powered content analysis to help protect children in digita
 
 ```bash
 # .NET CLI
-dotnet add package SafeNest
+dotnet add package Tuteliq
 
 # Package Manager
-Install-Package SafeNest
+Install-Package Tuteliq
 
 # PackageReference
-<PackageReference Include="SafeNest" Version="1.0.0" />
+<PackageReference Include="Tuteliq" Version="1.0.0" />
 ```
 
 ### Requirements
 
 - .NET 6.0, 7.0, or 8.0+
-- A SafeNest API key ([get one here](https://safenest.dev/dashboard))
+- A Tuteliq API key ([get one here](https://tuteliq.ai/dashboard))
 
 ---
 
 ## Quick Start
 
 ```csharp
-using SafeNest;
+using Tuteliq;
 
-var client = new SafeNestClient("your-api-key");
+var client = new TuteliqClient("your-api-key");
 
 // Detect bullying
 var result = await client.DetectBullyingAsync(new DetectBullyingInput
@@ -99,26 +99,26 @@ if (result.IsBullying)
 
 ```csharp
 // Basic
-var client = new SafeNestClient("your-api-key");
+var client = new TuteliqClient("your-api-key");
 
 // With options
-var client = new SafeNestClient("your-api-key", new SafeNestOptions
+var client = new TuteliqClient("your-api-key", new TuteliqOptions
 {
     Timeout = 15_000,   // 15s (default: 30s, range: 1-120s)
     Retries = 5,        // retry attempts (default: 3, range: 0-10)
     RetryDelay = 2_000, // initial delay (default: 1s)
-    BaseUrl = "https://api.safenest.dev"
+    BaseUrl = "https://api.tuteliq.ai"
 });
 
 // With dependency injection (ASP.NET Core)
-builder.Services.AddHttpClient<SafeNestClient>(client =>
+builder.Services.AddHttpClient<TuteliqClient>(client =>
 {
-    client.BaseAddress = new Uri("https://api.safenest.dev");
+    client.BaseAddress = new Uri("https://api.tuteliq.ai");
 });
 builder.Services.AddSingleton(sp =>
 {
-    var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(SafeNestClient));
-    return new SafeNestClient("your-api-key", httpClient);
+    var httpClient = sp.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(TuteliqClient));
+    return new TuteliqClient("your-api-key", httpClient);
 });
 ```
 
@@ -292,7 +292,7 @@ All endpoints support optional tracking fields for correlation and multi-tenant 
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `ExternalId` | `string?` | Your unique ID to correlate SafeNest results with your systems (max 255 chars) |
+| `ExternalId` | `string?` | Your unique ID to correlate Tuteliq results with your systems (max 255 chars) |
 | `CustomerId` | `string?` | Your end-customer ID for multi-tenant / B2B2C routing (max 255 chars) |
 | `Metadata` | `Dictionary<string, object>?` | Arbitrary key-value pairs for your own use |
 
@@ -376,7 +376,7 @@ catch (ServerException ex)
     // 5xx — Server error (auto-retried)
     Console.WriteLine($"Server error ({ex.StatusCode}): {ex.Message}");
 }
-catch (SafeNest.TimeoutException ex)
+catch (Tuteliq.TimeoutException ex)
 {
     // Request timed out (auto-retried)
     Console.WriteLine($"Timeout: {ex.Message}");
@@ -404,16 +404,16 @@ Non-retryable errors (400, 401, 403, 404) fail immediately.
 
 ```csharp
 // Program.cs
-builder.Services.AddSingleton<SafeNestClient>(_ =>
-    new SafeNestClient(
-        builder.Configuration["SafeNest:ApiKey"]!,
-        new SafeNestOptions { Timeout = 15_000 }
+builder.Services.AddSingleton<TuteliqClient>(_ =>
+    new TuteliqClient(
+        builder.Configuration["Tuteliq:ApiKey"]!,
+        new TuteliqOptions { Timeout = 15_000 }
     ));
 
 // Controller or Minimal API
-app.MapPost("/api/moderate", async (SafeNestClient safenest, ModerateRequest req) =>
+app.MapPost("/api/moderate", async (TuteliqClient tuteliq, ModerateRequest req) =>
 {
-    var result = await safenest.DetectBullyingAsync(new DetectBullyingInput
+    var result = await tuteliq.DetectBullyingAsync(new DetectBullyingInput
     {
         Content = req.Message,
         CustomerId = req.TenantId
@@ -462,10 +462,41 @@ The **grooming** method already accepts a `messages` list and analyzes the full 
 
 ### PII Redaction
 
-Enable `PII_REDACTION_ENABLED=true` on your SafeNest API to automatically strip emails, phone numbers, URLs, social handles, IPs, and other PII from detection summaries and webhook payloads. The original text is still analyzed in full — only stored outputs are scrubbed.
+Enable `PII_REDACTION_ENABLED=true` on your Tuteliq API to automatically strip emails, phone numbers, URLs, social handles, IPs, and other PII from detection summaries and webhook payloads. The original text is still analyzed in full — only stored outputs are scrubbed.
 
 ---
 
 ## License
 
 MIT — see [LICENSE](./LICENSE) for details.
+
+---
+
+## The Mission: Why This Matters
+
+Before you decide to contribute or sponsor, read these numbers. They are not projections. They are not estimates from a pitch deck. They are verified statistics from the University of Edinburgh, UNICEF, NCMEC, and Interpol.
+
+- **302 million** children are victims of online sexual exploitation and abuse every year. That is **10 children every second**. *(Childlight / University of Edinburgh, 2024)*
+- **1 in 8** children globally have been victims of non-consensual sexual imagery in the past year. *(Childlight, 2024)*
+- **370 million** girls and women alive today experienced rape or sexual assault in childhood. An estimated **240–310 million** boys and men experienced the same. *(UNICEF, 2024)*
+- **29.2 million** incidents of suspected child sexual exploitation were reported to NCMEC's CyberTipline in 2024 alone — containing **62.9 million files** (images, videos). *(NCMEC, 2025)*
+- **546,000** reports of online enticement (adults grooming children) in 2024 — a **192% increase** from the year before. *(NCMEC, 2025)*
+- **1,325% increase** in AI-generated child sexual abuse material reports between 2023 and 2024. The technology that should protect children is being weaponized against them. *(NCMEC, 2025)*
+- **100 sextortion reports per day** to NCMEC. Since 2021, at least **36 teenage boys** have taken their own lives because they were victimized by sextortion. *(NCMEC, 2025)*
+- **84%** of reports resolve outside the United States. This is not an American problem. This is a **global emergency**. *(NCMEC, 2025)*
+
+End-to-end encryption is making platforms blind. In 2024, platforms reported **7 million fewer incidents** than the year before — not because abuse stopped, but because they can no longer see it. The tools that catch known images are failing. The systems that rely on human moderators are overwhelmed. The technology to detect behavior — grooming patterns, escalation, manipulation — in real-time text conversations **exists right now**. It is running at [api.tuteliq.ai](https://api.tuteliq.ai).
+
+The question is not whether this technology is possible. The question is whether we build the company to put it everywhere it needs to be.
+
+**Every second we wait, another child is harmed.**
+
+We have the technology. We need the support.
+
+If this mission matters to you, consider [sponsoring our open-source work](https://github.com/sponsors/Tuteliq) so we can keep building the tools that protect children — and keep them free and accessible for everyone.
+
+---
+
+<p align="center">
+  <sub>Built with care for child safety by the <a href="https://tuteliq.ai">Tuteliq</a> team</sub>
+</p>

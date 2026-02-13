@@ -3,7 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Xunit;
 
-namespace SafeNest.Tests;
+namespace Tuteliq.Tests;
 
 // =============================================================================
 // Helper: Mock HttpMessageHandler
@@ -67,39 +67,39 @@ public class ConstructorTests
     [Fact]
     public void Throws_when_api_key_is_null()
     {
-        Assert.Throws<ArgumentException>(() => new SafeNestClient(null!));
+        Assert.Throws<ArgumentException>(() => new TuteliqClient(null!));
     }
 
     [Fact]
     public void Throws_when_api_key_is_empty()
     {
-        Assert.Throws<ArgumentException>(() => new SafeNestClient(""));
+        Assert.Throws<ArgumentException>(() => new TuteliqClient(""));
     }
 
     [Fact]
     public void Throws_when_api_key_too_short()
     {
-        Assert.Throws<ArgumentException>(() => new SafeNestClient("abc"));
+        Assert.Throws<ArgumentException>(() => new TuteliqClient("abc"));
     }
 
     [Fact]
     public void Throws_when_timeout_out_of_range()
     {
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            new SafeNestClient("test-api-key-1234", new SafeNestOptions { Timeout = 500 }));
+            new TuteliqClient("test-api-key-1234", new TuteliqOptions { Timeout = 500 }));
     }
 
     [Fact]
     public void Throws_when_retries_out_of_range()
     {
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            new SafeNestClient("test-api-key-1234", new SafeNestOptions { Retries = 11 }));
+            new TuteliqClient("test-api-key-1234", new TuteliqOptions { Retries = 11 }));
     }
 
     [Fact]
     public void Creates_client_with_valid_params()
     {
-        using var client = new SafeNestClient("test-api-key-1234");
+        using var client = new TuteliqClient("test-api-key-1234");
         Assert.NotNull(client);
     }
 
@@ -107,7 +107,7 @@ public class ConstructorTests
     public void Creates_client_with_custom_http_client()
     {
         var httpClient = new HttpClient { BaseAddress = new Uri("https://example.com") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient);
+        using var client = new TuteliqClient("test-api-key-1234", httpClient);
         Assert.NotNull(client);
     }
 }
@@ -142,8 +142,8 @@ public class BullyingDetectionTests
             ["x-ratelimit-remaining"] = "299",
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         var result = await client.DetectBullyingAsync(new DetectBullyingInput
         {
@@ -174,8 +174,8 @@ public class BullyingDetectionTests
             severity = "low", rationale = "", recommended_action = "none", risk_score = 0.05
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         await client.DetectBullyingAsync(new DetectBullyingInput
         {
@@ -202,7 +202,7 @@ public class BullyingDetectionTests
     [Fact]
     public async Task DetectBullying_validates_empty_content()
     {
-        using var client = new SafeNestClient("test-api-key-1234");
+        using var client = new TuteliqClient("test-api-key-1234");
         await Assert.ThrowsAsync<ValidationException>(() =>
             client.DetectBullyingAsync(new DetectBullyingInput { Content = "" }));
     }
@@ -210,7 +210,7 @@ public class BullyingDetectionTests
     [Fact]
     public async Task DetectBullying_validates_content_too_long()
     {
-        using var client = new SafeNestClient("test-api-key-1234");
+        using var client = new TuteliqClient("test-api-key-1234");
         await Assert.ThrowsAsync<ValidationException>(() =>
             client.DetectBullyingAsync(new DetectBullyingInput { Content = new string('x', 50_001) }));
     }
@@ -235,8 +235,8 @@ public class GroomingDetectionTests
             recommended_action = "immediate_intervention"
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         var result = await client.DetectGroomingAsync(new DetectGroomingInput
         {
@@ -257,7 +257,7 @@ public class GroomingDetectionTests
     [Fact]
     public async Task DetectGrooming_validates_empty_messages()
     {
-        using var client = new SafeNestClient("test-api-key-1234");
+        using var client = new TuteliqClient("test-api-key-1234");
         await Assert.ThrowsAsync<ValidationException>(() =>
             client.DetectGroomingAsync(new DetectGroomingInput()));
     }
@@ -265,7 +265,7 @@ public class GroomingDetectionTests
     [Fact]
     public async Task DetectGrooming_validates_too_many_messages()
     {
-        using var client = new SafeNestClient("test-api-key-1234");
+        using var client = new TuteliqClient("test-api-key-1234");
         var messages = Enumerable.Range(0, 101)
             .Select(i => new GroomingMessage(MessageRole.Child, $"msg {i}"))
             .ToList();
@@ -294,8 +294,8 @@ public class UnsafeDetectionTests
             recommended_action = "monitor"
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         var result = await client.DetectUnsafeAsync(new DetectUnsafeInput
         {
@@ -327,8 +327,8 @@ public class EmotionAnalysisTests
             recommended_followup = "Check in with child"
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         var result = await client.AnalyzeEmotionsAsync(new AnalyzeEmotionsInput
         {
@@ -350,8 +350,8 @@ public class EmotionAnalysisTests
             recommended_followup = "None"
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         var result = await client.AnalyzeEmotionsAsync(new AnalyzeEmotionsInput
         {
@@ -383,8 +383,8 @@ public class ActionPlanTests
             approx_reading_level = "grade 8"
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         var result = await client.GetActionPlanAsync(new GetActionPlanInput
         {
@@ -406,8 +406,8 @@ public class ActionPlanTests
             audience = "educator", steps = new[] { "Step 1" }, tone = "professional"
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         await client.GetActionPlanAsync(new GetActionPlanInput
         {
@@ -443,8 +443,8 @@ public class ReportTests
             recommended_next_steps = new[] { "Contact parent", "Notify school" }
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         var result = await client.GenerateReportAsync(new GenerateReportInput
         {
@@ -511,8 +511,8 @@ public class AnalyzeTests
             };
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         var result = await client.AnalyzeAsync("test content");
 
@@ -534,8 +534,8 @@ public class AnalyzeTests
             severity = "low", rationale = "", recommended_action = "none", risk_score = 0.05
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         var result = await client.AnalyzeAsync(new AnalyzeInput
         {
@@ -560,8 +560,8 @@ public class ErrorHandlingTests
     public async Task Throws_AuthenticationException_on_401()
     {
         var handler = MockHandler.WithError(HttpStatusCode.Unauthorized, "Invalid API key", "AUTH_1001");
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         var ex = await Assert.ThrowsAsync<AuthenticationException>(() =>
             client.DetectBullyingAsync(new DetectBullyingInput { Content = "test" }));
@@ -573,8 +573,8 @@ public class ErrorHandlingTests
     public async Task Throws_ValidationException_on_400()
     {
         var handler = MockHandler.WithError(HttpStatusCode.BadRequest, "Invalid input", "VAL_2001");
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         var ex = await Assert.ThrowsAsync<ValidationException>(() =>
             client.DetectBullyingAsync(new DetectBullyingInput { Content = "test" }));
@@ -585,8 +585,8 @@ public class ErrorHandlingTests
     public async Task Throws_TierAccessException_on_403()
     {
         var handler = MockHandler.WithError(HttpStatusCode.Forbidden, "Upgrade required");
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         await Assert.ThrowsAsync<TierAccessException>(() =>
             client.DetectBullyingAsync(new DetectBullyingInput { Content = "test" }));
@@ -596,8 +596,8 @@ public class ErrorHandlingTests
     public async Task Throws_NotFoundException_on_404()
     {
         var handler = MockHandler.WithError(HttpStatusCode.NotFound, "Not found");
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         await Assert.ThrowsAsync<NotFoundException>(() =>
             client.DetectBullyingAsync(new DetectBullyingInput { Content = "test" }));
@@ -607,8 +607,8 @@ public class ErrorHandlingTests
     public async Task Throws_RateLimitException_on_429()
     {
         var handler = MockHandler.WithError((HttpStatusCode)429, "Rate limit exceeded", "RATE_3001");
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         await Assert.ThrowsAsync<RateLimitException>(() =>
             client.DetectBullyingAsync(new DetectBullyingInput { Content = "test" }));
@@ -618,8 +618,8 @@ public class ErrorHandlingTests
     public async Task Throws_ServerException_on_500()
     {
         var handler = MockHandler.WithError(HttpStatusCode.InternalServerError, "Internal error");
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient, new SafeNestOptions { Retries = 0 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient, new TuteliqOptions { Retries = 0 });
 
         var ex = await Assert.ThrowsAsync<ServerException>(() =>
             client.DetectBullyingAsync(new DetectBullyingInput { Content = "test" }));
@@ -719,9 +719,9 @@ public class RetryTests
             };
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient,
-            new SafeNestOptions { Retries = 3, RetryDelay = 10 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient,
+            new TuteliqOptions { Retries = 3, RetryDelay = 10 });
 
         var result = await client.DetectBullyingAsync(new DetectBullyingInput { Content = "test" });
         Assert.False(result.IsBullying);
@@ -741,9 +741,9 @@ public class RetryTests
             };
         });
 
-        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.safenest.dev") };
-        using var client = new SafeNestClient("test-api-key-1234", httpClient,
-            new SafeNestOptions { Retries = 3, RetryDelay = 10 });
+        var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://api.tuteliq.ai") };
+        using var client = new TuteliqClient("test-api-key-1234", httpClient,
+            new TuteliqOptions { Retries = 3, RetryDelay = 10 });
 
         await Assert.ThrowsAsync<AuthenticationException>(() =>
             client.DetectBullyingAsync(new DetectBullyingInput { Content = "test" }));

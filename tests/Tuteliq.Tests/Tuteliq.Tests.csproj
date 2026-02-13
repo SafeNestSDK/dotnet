@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/SafeNest/SafeNest.csproj" />
+    <ProjectReference Include="../../src/Tuteliq/Tuteliq.csproj" />
   </ItemGroup>
 
 </Project>

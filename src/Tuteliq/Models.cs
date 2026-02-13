@@ -1,15 +1,15 @@
 using System.Text.Json.Serialization;
 
-namespace SafeNest;
+namespace Tuteliq;
 
 // =============================================================================
 // Configuration
 // =============================================================================
 
 /// <summary>
-/// Configuration options for the SafeNest client.
+/// Configuration options for the Tuteliq client.
 /// </summary>
-public class SafeNestOptions
+public class TuteliqOptions
 {
     /// <summary>Request timeout in milliseconds (default: 30000, range: 1000-120000).</summary>
     public int Timeout { get; set; } = 30_000;
@@ -20,8 +20,8 @@ public class SafeNestOptions
     /// <summary>Initial retry delay in milliseconds (default: 1000).</summary>
     public int RetryDelay { get; set; } = 1_000;
 
-    /// <summary>API base URL (default: https://api.safenest.dev).</summary>
-    public string BaseUrl { get; set; } = "https://api.safenest.dev";
+    /// <summary>API base URL (default: https://api.tuteliq.ai).</summary>
+    public string BaseUrl { get; set; } = "https://api.tuteliq.ai";
 }
 
 // =============================================================================
@@ -487,6 +487,116 @@ public class AccountExportResult
 }
 
 // =============================================================================
+// Consent Management (GDPR Article 7)
+// =============================================================================
+
+/// <summary>
+/// A consent record.
+/// </summary>
+public class ConsentRecord
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = "";
+
+    [JsonPropertyName("user_id")]
+    public string UserId { get; set; } = "";
+
+    [JsonPropertyName("consent_type")]
+    public string ConsentType { get; set; } = "";
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = "";
+
+    [JsonPropertyName("version")]
+    public string Version { get; set; } = "";
+
+    [JsonPropertyName("created_at")]
+    public string CreatedAt { get; set; } = "";
+}
+
+/// <summary>
+/// Result from consent record/withdraw operations.
+/// </summary>
+public class ConsentActionResult
+{
+    [JsonPropertyName("message")]
+    public string Message { get; set; } = "";
+
+    [JsonPropertyName("consent")]
+    public ConsentRecord? Consent { get; set; }
+}
+
+/// <summary>
+/// Result from consent status query.
+/// </summary>
+public class ConsentStatusResult
+{
+    [JsonPropertyName("consents")]
+    public List<ConsentRecord> Consents { get; set; } = new();
+}
+
+/// <summary>
+/// Input for recording consent.
+/// </summary>
+public class RecordConsentInput
+{
+    public string ConsentType { get; set; } = "";
+    public string Version { get; set; } = "";
+}
+
+/// <summary>
+/// Input for data rectification.
+/// </summary>
+public class RectifyDataInput
+{
+    public string Collection { get; set; } = "";
+    public string DocumentId { get; set; } = "";
+    public Dictionary<string, object> Fields { get; set; } = new();
+}
+
+/// <summary>
+/// Result from data rectification.
+/// </summary>
+public class RectifyDataResult
+{
+    [JsonPropertyName("message")]
+    public string Message { get; set; } = "";
+
+    [JsonPropertyName("updated_fields")]
+    public List<string> UpdatedFields { get; set; } = new();
+}
+
+/// <summary>
+/// An audit log entry.
+/// </summary>
+public class AuditLogEntry
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = "";
+
+    [JsonPropertyName("user_id")]
+    public string UserId { get; set; } = "";
+
+    [JsonPropertyName("action")]
+    public string Action { get; set; } = "";
+
+    [JsonPropertyName("details")]
+    public Dictionary<string, object>? Details { get; set; }
+
+    [JsonPropertyName("created_at")]
+    public string CreatedAt { get; set; } = "";
+}
+
+/// <summary>
+/// Result from audit logs query.
+/// </summary>
+public class AuditLogsResult
+{
+    [JsonPropertyName("audit_logs")]
+    public List<AuditLogEntry> AuditLogs { get; set; } = new();
+}
+
+// =============================================================================
 // Usage & Rate Limit
 // =============================================================================
 
@@ -508,4 +618,103 @@ public class RateLimitInfo
     public int Limit { get; set; }
     public int Remaining { get; set; }
     public long? Reset { get; set; }
+}
+
+// =============================================================================
+// Breach Management (GDPR Article 33/34)
+// =============================================================================
+
+/// <summary>
+/// Input for logging a new data breach.
+/// </summary>
+public class LogBreachInput
+{
+    public string Title { get; set; } = "";
+    public string Description { get; set; } = "";
+    public string Severity { get; set; } = "low";
+    public List<string> AffectedUserIds { get; set; } = new();
+    public List<string> DataCategories { get; set; } = new();
+    public string ReportedBy { get; set; } = "";
+}
+
+/// <summary>
+/// Input for updating a breach.
+/// </summary>
+public class UpdateBreachInput
+{
+    public string Status { get; set; } = "";
+    public string? NotificationStatus { get; set; }
+    public string? Notes { get; set; }
+}
+
+/// <summary>
+/// A breach record.
+/// </summary>
+public class BreachRecord
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = "";
+
+    [JsonPropertyName("title")]
+    public string Title { get; set; } = "";
+
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = "";
+
+    [JsonPropertyName("severity")]
+    public string Severity { get; set; } = "";
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = "";
+
+    [JsonPropertyName("notification_status")]
+    public string NotificationStatus { get; set; } = "";
+
+    [JsonPropertyName("affected_user_ids")]
+    public List<string> AffectedUserIds { get; set; } = new();
+
+    [JsonPropertyName("data_categories")]
+    public List<string> DataCategories { get; set; } = new();
+
+    [JsonPropertyName("reported_by")]
+    public string ReportedBy { get; set; } = "";
+
+    [JsonPropertyName("notification_deadline")]
+    public string NotificationDeadline { get; set; } = "";
+
+    [JsonPropertyName("created_at")]
+    public string CreatedAt { get; set; } = "";
+
+    [JsonPropertyName("updated_at")]
+    public string UpdatedAt { get; set; } = "";
+}
+
+/// <summary>
+/// Result from logging a breach.
+/// </summary>
+public class LogBreachResult
+{
+    [JsonPropertyName("message")]
+    public string Message { get; set; } = "";
+
+    [JsonPropertyName("breach")]
+    public BreachRecord? Breach { get; set; }
+}
+
+/// <summary>
+/// Result from listing breaches.
+/// </summary>
+public class BreachListResult
+{
+    [JsonPropertyName("breaches")]
+    public List<BreachRecord> Breaches { get; set; } = new();
+}
+
+/// <summary>
+/// Result from getting/updating a breach.
+/// </summary>
+public class BreachResult
+{
+    [JsonPropertyName("breach")]
+    public BreachRecord? Breach { get; set; }
 }

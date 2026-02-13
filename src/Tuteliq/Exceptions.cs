@@ -1,9 +1,9 @@
-namespace SafeNest;
+namespace Tuteliq;
 
 /// <summary>
-/// Base exception for all SafeNest SDK errors.
+/// Base exception for all Tuteliq SDK errors.
 /// </summary>
-public class SafeNestException : Exception
+public class TuteliqException : Exception
 {
     /// <summary>HTTP status code, if applicable.</summary>
     public int? StatusCode { get; }
@@ -17,7 +17,7 @@ public class SafeNestException : Exception
     /// <summary>Suggested action to resolve the error.</summary>
     public string? Suggestion { get; }
 
-    public SafeNestException(string message, int? statusCode = null, string? code = null, object? details = null, string? suggestion = null)
+    public TuteliqException(string message, int? statusCode = null, string? code = null, object? details = null, string? suggestion = null)
         : base(message)
     {
         StatusCode = statusCode;
@@ -26,7 +26,7 @@ public class SafeNestException : Exception
         Suggestion = suggestion;
     }
 
-    public SafeNestException(string message, Exception innerException)
+    public TuteliqException(string message, Exception innerException)
         : base(message, innerException)
     {
     }
@@ -35,7 +35,7 @@ public class SafeNestException : Exception
 /// <summary>
 /// Thrown when authentication fails (HTTP 401).
 /// </summary>
-public class AuthenticationException : SafeNestException
+public class AuthenticationException : TuteliqException
 {
     public AuthenticationException(string message, string? code = null, object? details = null, string? suggestion = null)
         : base(message, 401, code, details, suggestion) { }
@@ -44,7 +44,7 @@ public class AuthenticationException : SafeNestException
 /// <summary>
 /// Thrown when the request is invalid (HTTP 400).
 /// </summary>
-public class ValidationException : SafeNestException
+public class ValidationException : TuteliqException
 {
     public ValidationException(string message, string? code = null, object? details = null, string? suggestion = null)
         : base(message, 400, code, details, suggestion) { }
@@ -53,7 +53,7 @@ public class ValidationException : SafeNestException
 /// <summary>
 /// Thrown when a resource is not found (HTTP 404).
 /// </summary>
-public class NotFoundException : SafeNestException
+public class NotFoundException : TuteliqException
 {
     public NotFoundException(string message, string? code = null, object? details = null, string? suggestion = null)
         : base(message, 404, code, details, suggestion) { }
@@ -62,7 +62,7 @@ public class NotFoundException : SafeNestException
 /// <summary>
 /// Thrown when the rate limit is exceeded (HTTP 429).
 /// </summary>
-public class RateLimitException : SafeNestException
+public class RateLimitException : TuteliqException
 {
     /// <summary>Number of seconds to wait before retrying.</summary>
     public int? RetryAfterSeconds { get; }
@@ -77,7 +77,7 @@ public class RateLimitException : SafeNestException
 /// <summary>
 /// Thrown when the tier does not have access (HTTP 403).
 /// </summary>
-public class TierAccessException : SafeNestException
+public class TierAccessException : TuteliqException
 {
     public TierAccessException(string message, string? code = null, object? details = null, string? suggestion = null)
         : base(message, 403, code, details, suggestion) { }
@@ -86,7 +86,7 @@ public class TierAccessException : SafeNestException
 /// <summary>
 /// Thrown when the server returns a 5xx error.
 /// </summary>
-public class ServerException : SafeNestException
+public class ServerException : TuteliqException
 {
     public ServerException(string message, int statusCode, string? code = null, object? details = null, string? suggestion = null)
         : base(message, statusCode, code, details, suggestion) { }
@@ -95,7 +95,7 @@ public class ServerException : SafeNestException
 /// <summary>
 /// Thrown when a request times out.
 /// </summary>
-public class TimeoutException : SafeNestException
+public class TimeoutException : TuteliqException
 {
     public TimeoutException(string message)
         : base(message) { }
@@ -107,7 +107,7 @@ public class TimeoutException : SafeNestException
 /// <summary>
 /// Thrown when a network error occurs.
 /// </summary>
-public class NetworkException : SafeNestException
+public class NetworkException : TuteliqException
 {
     public NetworkException(string message)
         : base(message) { }

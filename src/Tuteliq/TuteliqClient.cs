@@ -5,19 +5,19 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace SafeNest;
+namespace Tuteliq;
 
 /// <summary>
-/// SafeNest API client for AI-powered child safety analysis.
+/// Tuteliq API client for AI-powered child safety analysis.
 /// </summary>
 /// <example>
 /// <code>
-/// var client = new SafeNestClient("your-api-key");
+/// var client = new TuteliqClient("your-api-key");
 /// var result = await client.DetectBullyingAsync(new DetectBullyingInput { Content = "test" });
 /// if (result.IsBullying) Console.WriteLine($"Severity: {result.Severity}");
 /// </code>
 /// </example>
-public class SafeNestClient : IDisposable
+public class TuteliqClient : IDisposable
 {
     private const int MaxContentLength = 50_000;
     private const int MaxMessagesCount = 100;
@@ -76,18 +76,18 @@ public class SafeNestClient : IDisposable
     public long? LastLatencyMs { get; private set; }
 
     /// <summary>
-    /// Creates a new SafeNest client.
+    /// Creates a new Tuteliq client.
     /// </summary>
-    /// <param name="apiKey">Your SafeNest API key.</param>
+    /// <param name="apiKey">Your Tuteliq API key.</param>
     /// <param name="options">Optional configuration.</param>
-    public SafeNestClient(string apiKey, SafeNestOptions? options = null)
+    public TuteliqClient(string apiKey, TuteliqOptions? options = null)
     {
         if (string.IsNullOrWhiteSpace(apiKey))
             throw new ArgumentException("API key is required", nameof(apiKey));
         if (apiKey.Length < 10)
             throw new ArgumentException("API key appears to be invalid (too short)", nameof(apiKey));
 
-        options ??= new SafeNestOptions();
+        options ??= new TuteliqOptions();
 
         if (options.Timeout < 1_000 || options.Timeout > 120_000)
             throw new ArgumentOutOfRangeException(nameof(options), "Timeout must be between 1000 and 120000 ms");
@@ -106,14 +106,14 @@ public class SafeNestClient : IDisposable
     }
 
     /// <summary>
-    /// Creates a new SafeNest client with a custom HttpClient (for DI scenarios).
+    /// Creates a new Tuteliq client with a custom HttpClient (for DI scenarios).
     /// </summary>
-    public SafeNestClient(string apiKey, HttpClient httpClient, SafeNestOptions? options = null)
+    public TuteliqClient(string apiKey, HttpClient httpClient, TuteliqOptions? options = null)
     {
         if (string.IsNullOrWhiteSpace(apiKey))
             throw new ArgumentException("API key is required", nameof(apiKey));
 
-        options ??= new SafeNestOptions();
+        options ??= new TuteliqOptions();
 
         _apiKey = apiKey;
         _timeout = options.Timeout;
@@ -379,6 +379,105 @@ public class SafeNestClient : IDisposable
         return await RequestWithRetryAsync<AccountExportResult>(HttpMethod.Get, "/api/v1/account/export", null, ct);
     }
 
+    /// <summary>
+    /// Record user consent (GDPR Article 7).
+    /// </summary>
+    public async Task<ConsentActionResult> RecordConsentAsync(RecordConsentInput input, CancellationToken ct = default)
+    {
+        var body = new { consent_type = input.ConsentType, version = input.Version };
+        return await RequestWithRetryAsync<ConsentActionResult>(HttpMethod.Post, "/api/v1/account/consent", body, ct);
+    }
+
+    /// <summary>
+    /// Get current consent status (GDPR Article 7).
+    /// </summary>
+    public async Task<ConsentStatusResult> GetConsentStatusAsync(string? consentType = null, CancellationToken ct = default)
+    {
+        var query = consentType != null ? $"?type={consentType}" : "";
+        return await RequestWithRetryAsync<ConsentStatusResult>(HttpMethod.Get, $"/api/v1/account/consent{query}", null, ct);
+    }
+
+    /// <summary>
+    /// Withdraw consent (GDPR Article 7.3).
+    /// </summary>
+    public async Task<ConsentActionResult> WithdrawConsentAsync(string consentType, CancellationToken ct = default)
+    {
+        return await RequestWithRetryAsync<ConsentActionResult>(HttpMethod.Delete, $"/api/v1/account/consent/{consentType}", null, ct);
+    }
+
+    /// <summary>
+    /// Rectify user data (GDPR Article 16 — Right to Rectification).
+    /// </summary>
+    public async Task<RectifyDataResult> RectifyDataAsync(RectifyDataInput input, CancellationToken ct = default)
+    {
+        var body = new { collection = input.Collection, document_id = input.DocumentId, fields = input.Fields };
+        return await RequestWithRetryAsync<RectifyDataResult>(HttpMethod.Patch, "/api/v1/account/data", body, ct);
+    }
+
+    /// <summary>
+    /// Get audit logs (GDPR Article 15 — Right of Access).
+    /// </summary>
+    public async Task<AuditLogsResult> GetAuditLogsAsync(string? action = null, int? limit = null, CancellationToken ct = default)
+    {
+        var parameters = new List<string>();
+        if (action != null) parameters.Add($"action={action}");
+        if (limit.HasValue) parameters.Add($"limit={limit.Value}");
+        var query = parameters.Count > 0 ? $"?{string.Join("&", parameters)}" : "";
+        return await RequestWithRetryAsync<AuditLogsResult>(HttpMethod.Get, $"/api/v1/account/audit-logs{query}", null, ct);
+    }
+
+    // =========================================================================
+    // Breach Management (GDPR Article 33/34)
+    // =========================================================================
+
+    /// <summary>
+    /// Log a new data breach.
+    /// </summary>
+    public async Task<LogBreachResult> LogBreachAsync(LogBreachInput input, CancellationToken ct = default)
+    {
+        var body = new
+        {
+            title = input.Title,
+            description = input.Description,
+            severity = input.Severity,
+            affected_user_ids = input.AffectedUserIds,
+            data_categories = input.DataCategories,
+            reported_by = input.ReportedBy,
+        };
+        return await RequestWithRetryAsync<LogBreachResult>(HttpMethod.Post, "/api/v1/admin/breach", body, ct);
+    }
+
+    /// <summary>
+    /// List data breaches.
+    /// </summary>
+    public async Task<BreachListResult> ListBreachesAsync(string? status = null, int? limit = null, CancellationToken ct = default)
+    {
+        var parameters = new List<string>();
+        if (status != null) parameters.Add($"status={status}");
+        if (limit.HasValue) parameters.Add($"limit={limit.Value}");
+        var query = parameters.Count > 0 ? $"?{string.Join("&", parameters)}" : "";
+        return await RequestWithRetryAsync<BreachListResult>(HttpMethod.Get, $"/api/v1/admin/breach{query}", null, ct);
+    }
+
+    /// <summary>
+    /// Get a single breach by ID.
+    /// </summary>
+    public async Task<BreachResult> GetBreachAsync(string id, CancellationToken ct = default)
+    {
+        return await RequestWithRetryAsync<BreachResult>(HttpMethod.Get, $"/api/v1/admin/breach/{id}", null, ct);
+    }
+
+    /// <summary>
+    /// Update a breach's status.
+    /// </summary>
+    public async Task<BreachResult> UpdateBreachStatusAsync(string id, UpdateBreachInput input, CancellationToken ct = default)
+    {
+        var bodyDict = new Dictionary<string, object?> { ["status"] = input.Status };
+        if (input.NotificationStatus != null) bodyDict["notification_status"] = input.NotificationStatus;
+        if (input.Notes != null) bodyDict["notes"] = input.Notes;
+        return await RequestWithRetryAsync<BreachResult>(HttpMethod.Patch, $"/api/v1/admin/breach/{id}", bodyDict, ct);
+    }
+
     // =========================================================================
     // Private Methods
     // =========================================================================
@@ -410,14 +509,14 @@ public class SafeNestClient : IDisposable
                     : CalculateBackoff(attempt);
                 await Task.Delay(delay, ct);
             }
-            catch (SafeNestException ex) when (attempt < _maxRetries && IsRetryable(ex))
+            catch (TuteliqException ex) when (attempt < _maxRetries && IsRetryable(ex))
             {
                 lastError = ex;
                 await Task.Delay(CalculateBackoff(attempt), ct);
             }
         }
 
-        throw lastError ?? new SafeNestException("Request failed after retries");
+        throw lastError ?? new TuteliqException("Request failed after retries");
     }
 
     private async Task<T> PerformRequestAsync<T>(HttpMethod method, string path, object? body, CancellationToken ct)
@@ -450,7 +549,7 @@ public class SafeNestClient : IDisposable
                 HandleErrorResponse(response.StatusCode, responseBody);
 
             return JsonSerializer.Deserialize<T>(responseBody, JsonOptions)
-                ?? throw new SafeNestException("Failed to parse API response");
+                ?? throw new TuteliqException("Failed to parse API response");
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
@@ -458,7 +557,7 @@ public class SafeNestClient : IDisposable
         }
         catch (OperationCanceledException)
         {
-            throw new SafeNest.TimeoutException($"Request to {path} timed out after {_timeout}ms");
+            throw new Tuteliq.TimeoutException($"Request to {path} timed out after {_timeout}ms");
         }
         catch (HttpRequestException ex)
         {
@@ -520,7 +619,7 @@ public class SafeNestClient : IDisposable
             404 => new NotFoundException(message, code, details, suggestion),
             429 => new RateLimitException(message, retryAfter, code, details, suggestion),
             >= 500 => new ServerException(message, status, code, details, suggestion),
-            _ => new SafeNestException(message, status, code, details, suggestion),
+            _ => new TuteliqException(message, status, code, details, suggestion),
         };
     }
 
@@ -531,9 +630,9 @@ public class SafeNestClient : IDisposable
         return Math.Min(delay + jitter, MaxBackoffMs);
     }
 
-    private static bool IsRetryable(SafeNestException ex)
+    private static bool IsRetryable(TuteliqException ex)
     {
-        return ex is ServerException or NetworkException or SafeNest.TimeoutException;
+        return ex is ServerException or NetworkException or Tuteliq.TimeoutException;
     }
 
     private static string? GetHeader(HttpResponseMessage response, string name)

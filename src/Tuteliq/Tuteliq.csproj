@@ -5,19 +5,19 @@
     <LangVersion>12</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>SafeNest</RootNamespace>
-    <AssemblyName>SafeNest</AssemblyName>
+    <RootNamespace>Tuteliq</RootNamespace>
+    <AssemblyName>Tuteliq</AssemblyName>
 
     <!-- NuGet Package -->
-    <PackageId>SafeNest</PackageId>
-    <Version>1.1.0</Version>
-    <Authors>SafeNest</Authors>
-    <Company>SafeNest</Company>
-    <Description>Official .NET SDK for the SafeNest API — AI-powered child safety analysis for C#/.NET applications</Description>
-    <PackageTags>safenest;child-safety;content-moderation;ai;sdk</PackageTags>
+    <PackageId>Tuteliq</PackageId>
+    <Version>1.2.0</Version>
+    <Authors>Tuteliq</Authors>
+    <Company>Tuteliq</Company>
+    <Description>Official .NET SDK for the Tuteliq API — AI-powered child safety analysis for C#/.NET applications</Description>
+    <PackageTags>tuteliq;child-safety;content-moderation;ai;sdk</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/SafeNestSDK/dotnet</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/SafeNestSDK/dotnet.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/TuteliqSDK/dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TuteliqSDK/dotnet.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
@@ -27,7 +27,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="SafeNest.Tests" />
+    <InternalsVisibleTo Include="Tuteliq.Tests" />
   </ItemGroup>
 
   <ItemGroup>
